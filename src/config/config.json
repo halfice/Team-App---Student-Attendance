@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "student-attendance-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/studentAttendance/StudentAttendanceWebPart.js",
+          "manifest": "./src/webparts/studentAttendance/StudentAttendanceWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "StudentAttendanceWebPartStrings": "lib/webparts/studentAttendance/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+  }
+}

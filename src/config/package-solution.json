@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "nacd-student-attendance-client-side-solution",
+    "id": "39ae0f95-5751-4b97-9791-a6551aa4d25e",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "NACD-Student-Attendance description"
+      },
+      "longDescription": {
+        "default": "NACD-Student-Attendance description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "nacd-student-attendance Feature",
+        "description": "The feature that activates elements of the nacd-student-attendance solution.",
+        "id": "8ac9d486-8a45-42c2-ae21-3d8e3161797c",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/nacd-student-attendance.sppkg"
+  }
+}

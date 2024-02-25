@@ -1,0 +1,624 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+:global {
+
+
+  #workbenchPageContent,
+  .CanvasComponent.LCS .CanvasZone {
+    max-width: 100% !important;
+  }
+
+  .ms-TextField-fieldGroup {
+    height: 42px !important;
+    width: 100% !important;
+  }
+
+  .ms-TextField-field {
+    text-align: right !important;
+    direction: rtl !important;
+    font-size: 17px !important;
+    color: white !important;
+    border: 1px grey;
+    border: 3px solid #e4ccb1;
+    border-radius: 9px;
+    padding: 11px;
+
+  }
+
+  .ms-TagItem {
+    background-color: white !important;
+    margin: 3px !important;
+    height: 31 !important;
+  }
+
+  .ms-BasePicker-text {
+
+    text-align: right;
+    direction: rtl;
+    font-size: 13px;
+    background-color: #5a0808;
+    color: #fff;
+    border: 1px grey;
+    border: 3px solid #e4ccb1;
+    border-radius: 9px;
+    padding: 3px;
+    color: white !important;
+    margin-bottom: 2px;
+  }
+
+  .labelclass {
+    padding: 15px;
+    text-align: center;
+    font-weight: bold
+  }
+
+
+  .dropdownclass {
+    padding: 11px;
+  }
+
+  .headingdivc {
+    padding: 10px;
+    font-size: 16px;
+    color: #567384;
+    font-weight: bold;
+  }
+
+  .columnsClass {
+    background-color: #5a7283 !important;
+    color: #dec8a9 !important;
+    font-weight: bold !important;
+  }
+
+  .namespan{
+    font-weight: bold;
+      color: #5a7283 !important;
+
+  }
+
+
+  .displaynaecss{
+    font-size: 34px;
+    color:white;
+    text-align: center;
+    cursor: pointer;
+  }
+
+
+  .popupfather {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    top: 0%;
+    left: 0%;
+    opacity: 0.9;
+  }
+
+  .popupcontent{
+    margin: 15% auto;
+    padding: 20px;
+    max-width: 436px;
+    color: white;
+    border: solid 4px gray;
+    border-radius: 11px;
+  }
+
+  .AttendanceSectionClasss{
+    background-color: white!important;
+    padding-top: 11px!important;
+  }
+
+
+  .columnsgrid {
+    background-color: #fff !important;
+    border-bottom: 1px solid gray;
+    color: #5d7183 !important;
+    border-left: solid 1px gray;
+    border-right: solid 1px gray;
+    padding: 7px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+
+
+  .headindiv {
+    background-color: #5a7283 !important;
+    color: #dec8a9 !important;
+    font-weight: bold !important;
+
+
+  }
+
+
+  .ms-BasePicker-input {
+    font-size: 13px !important;
+    text-align: right !important;
+    margin: auto !important;
+    direction: rtl !important;
+  }
+
+  .ms-Button-flexContainer {
+    // color: white!important;
+    // background-color: #647b87!important;
+    font-size: 13px !important;
+    text-align: right !important;
+    margin: auto !important;
+    direction: rtl !important;
+
+  }
+
+
+
+
+
+  .ms-Suggestions-title {
+    padding: 0px 12px !important;
+    font-size: 22px !important;
+    color: white !important;
+    line-height: 40px !important;
+    border-bottom: 1px solid rgb(237, 235, 233) !important;
+    background-color: #647b87 !important;
+
+  }
+
+  @media all and (min-width:569px) and (max-width: 768px) {
+
+    /* put your css styles in here */
+    .mymodal {
+      overflow: auto;
+      height: 83% !important;
+    }
+  }
+
+  @media all and (min-width:481px) and (max-width: 568px) {
+
+    /* put your css styles in here */
+    .mymodal {
+      overflow: auto;
+      height: 83% !important;
+    }
+  }
+
+  @media all and (min-width:321px) and (max-width: 480px) {
+
+    /* put your css styles in here */
+    .mymodal {
+      overflow: auto;
+      height: 83% !important;
+    }
+  }
+
+  @media all and (min-width:0px) and (max-width: 320px) {
+
+    /* put your css styles in here */
+    .mymodal {
+      overflow: auto;
+      height: 83% !important;
+    }
+  }
+
+
+
+
+
+}
+
+
+.modalsmallimages {
+  width: 100px;
+  height: 100px;
+}
+
+.modallogoimage {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+}
+
+.modalprent {
+  width: 100%;
+  height: 100%;
+  left: 0%;
+  top: 0%;
+  border: none;
+  right: 0%;
+  background-color: #e0bea1;
+  padding: 0px !important;
+  position: fixed;
+  z-index: 999999;
+  background-image: url(https://nacdeduae.sharepoint.com/Assets/logo.png);
+  background-repeat: no-repeat;
+
+  background-position: top;
+  background-size: cover;
+  ;
+
+}
+
+.mymodal {
+  position: fixed;
+  width: auto;
+  height: 100%;
+  overflow: auto;
+  padding: 11px;
+  margin: 11p;
+  margin: 11px;
+  top: 15%;
+  left: 15%;
+  z-index: 9999;
+  opacity: .9;
+  background-color: #567384;
+  right: 10%;
+  color: white;
+  border: 5px solid #c97610;
+  border-radius: 11px;
+  direction: rtl;
+  text-align: right;
+  cursor: pointer;
+  right: 15%;
+
+  position: fixed;
+  width: 63%;
+  height: auto;
+  padding: 11px;
+  margin: 11p;
+  margin: 11px;
+  top: 15%;
+  left: 15%;
+  z-index: 9999;
+  opacity: .9;
+  background-color: #567384;
+  right: 10%;
+  color: #fff;
+  border: 5px solid #c97610;
+  border-radius: 20%;
+  direction: rtl;
+  text-align: right;
+  cursor: pointer;
+  right: 15%;
+  border-end-end-radius: 51%;
+  border-end-start-radius: 55%;
+  border-inline: initial;
+  border-inline-start: revert;
+  border-top-color: beige;
+  border-inline-end-width: revert;
+  border-bottom: double;
+  border-bottom: inset;
+  box-shadow: 2px 2px 2px 2px navajowhite;
+  border: outset;
+  border-left: groove;
+  border-right: solid;
+  border-image-slice: inherit;
+  border-bottom: ridge;
+  border-top: groove;
+  overflow-x: hidden !important;
+
+
+
+}
+
+
+.redmde {
+  color: red !important;
+  font-size: 9px !important;
+  ;
+}
+
+.sucessparagraph {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.formtextaraea {
+  width: 100%;
+  text-align: right;
+  direction: rtl;
+  font-size: 17px;
+  background-color: #5a0808;
+  color: white;
+  border: slid 1px gray;
+  border: solid 3px #e4ccb1;
+  border-radius: 9px;
+  padding: 11px;
+}
+
+
+#Modal34 {
+  background-color: #34454f;
+  color: white;
+  font-size: 22px;
+  padding: 11px;
+  margin: 11px;
+
+}
+
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: stretch;
+}
+
+.btnwrapper {
+  text-align: center;
+  display: inline-flex;
+}
+
+.btn_In_Css {
+  font-size: 8px;
+  border: 1px solid #fff;
+  border-radius: 17%;
+  padding: 5px;
+  text-align: center;
+  direction: revert;
+  cursor: pointer;
+  width: 100%;
+  ;
+  background-color: #c76e00;
+}
+
+.btn_not_in_Css {
+
+  background-color: #c76e00;
+  font-size: 8px;
+  border: 1px solid #fff;
+  border-radius: 17%;
+  padding: 1px;
+  text-align: center;
+  direction: revert;
+  border-end-start-radius: 0;
+  cursor: pointer;
+
+}
+
+
+.brainclose {
+  height: 1.4rem !important;
+  color: white !important;
+
+}
+
+.braink {
+  height: 1.2rem !important;
+  color: #e1c7a8;
+}
+
+
+
+
+.formbutton {
+
+  font-size: 12px;
+  width: 71px;
+  border: 1px solid #fff;
+  border-radius: 34%;
+  padding: 3px;
+  background-color: #c76e00;
+  text-align: center;
+  direction: revert;
+  border-end-start-radius: 0;
+  cursor: pointer;
+}
+
+.formparagrpah {
+  font-size: 23px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.textIncentre {
+  text-align: center !important;
+}
+
+.imageclass {
+  width: 39px;
+  height: auto;
+  border: solid 1px #e0c6a8;
+}
+
+
+.paragraph {
+  color: #e1c7a8 !important;
+  font-size: 10px !important;
+}
+
+
+.mytimeattendancemodal_new {
+
+  position: fixed;
+
+
+  position: fixed;
+  overflow: auto;
+  z-index: 9999;
+  opacity: .9;
+  background-color: #567384;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden !important;
+  width: 169px;
+  height: auto;
+  padding: 3px;
+  margin: 1px;
+  top: 0;
+  right: 10%;
+  border-radius: 16%;
+  right: 3%;
+  cursor: pointer;
+
+}
+
+
+.loaderdiv {
+  position: fixed;
+  background-color: black;
+  opacity: 0.5;
+  width: 100%;
+  height: 100%;
+  top: 0%;
+  z-index: 9999999999999999999;
+  cursor: pointer;
+  left: 0%;
+}
+
+.loader {
+  border: 9px solid #dec8a9;
+  /* Light grey */
+  border-top: 7px solid #567384;
+  /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 20% auto;
+}
+
+
+
+
+.MsGridcol {
+  border-bottom: 1px solid gray !important;
+  border-left: 1px solid gry !important;
+  border-right: 1px solid gray !important;
+  font-size: 22px !important;
+  padding: 4px !important;
+  color: #5a7283 !important;
+
+}
+
+
+
+.clockdiv {
+  background-color: #dec8a9;
+  padding: 8px;
+  margin: 10px;
+  border: solid 1px gray;
+  box-shadow: 2px 2px 2px 2px #5a7283;
+  color: #ef7c6a;
+  font-weight: bold;
+}
+
+.btnbtn_css_meetingc {
+  background-color: #88ab94;
+  border: 1px solid #fff;
+  cursor: pointer;
+  direction: revert;
+  font-size: 8px;
+  text-align: center;
+  color: white;
+  font-size: 21px;
+  border-radius: 99px;
+  margin: auto;
+  text-align: center;
+
+  box-shadow: 2px 2px 2px 2px #5a7283;
+  font-weight: 700;
+  margin: 10px;
+  padding: 8px;
+
+
+
+
+
+}
+
+
+
+.btnbtn_css_meeting {
+  background-color: #e1c7a8;
+  border: 1px solid #fff;
+  cursor: pointer;
+  direction: revert;
+  font-size: 8px;
+  text-align: center;
+  color: white;
+  font-size: 17px;
+}
+
+
+.mytimeattendancemodal {
+
+
+  position: fixed;
+  width: 97px;
+  height: 97px;
+  overflow: auto;
+  padding: 11px;
+  margin: 11p;
+  margin: 8px;
+  top: 1%;
+  z-index: 9999;
+  opacity: .9;
+  background-color: #567384;
+  right: 10%;
+  color: #fff;
+  border: 2px solid #e1c7a8;
+  border-radius: 60%;
+  text-align: center;
+  cursor: pointer;
+  right: 2%;
+  overflow: hidden !important;
+  box-shadow: 1px 1px 1px 1px #e1c7a8;
+  z-index: 8888888888;
+
+}
+
+.fileuploadcss {
+  padding: 5px;
+  background-color: #5a0808;
+  border: 3px solid #e0bea1 !important;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: .2s ease-in-out;
+  width: 100%;
+
+
+
+
+
+}
+.studentAttendance {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+  &.teams {
+    font-family: $ms-font-family-fallbacks;
+  }
+}
+
+
+.welcome {
+  text-align: center;
+  border-left: 3px solid gray;
+  border-right: 2px solid gray;
+  box-shadow: 2px 2px 2px gray;
+  margin: 3%;
+  border-radius: 1%;
+}
+
+.welcomeImage {
+  width: 100%;
+  max-width: 420px;
+}
+
+.links {
+  a {
+    text-decoration: none;
+    color: "[theme:link, default:#03787c]";
+    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+
+    &:hover {
+      text-decoration: underline;
+      color: "[theme:linkHovered, default: #014446]";
+      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
+    }
+  }
+}
