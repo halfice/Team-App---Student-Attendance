@@ -50,10 +50,6 @@ const daysOfWeek = [
   }
 ];
 
-
-
-
-
 export default class StudentAttendance extends React.Component<IStudentAttendanceProps, any> {
   private _sp: SPFI;
   constructor(props: IStudentAttendanceProps) {
@@ -175,7 +171,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
         TempSubject = FinalItem[x].Subject;
         TempTeacher = option.text;
         TempDay = dayName
-        TempSlot = FinalItem[x].Time + ":" + FinalItem[x].TimeMax
+        TempSlot = FinalItem[x].Time + "-" + FinalItem[x].TimeMax
         TempFacialTimeIn = FinalItem[x].Time;
         TempFcailTimeout = FinalItem[x].TimeMax;
         TempTecherKey = FinalItem[x].Teacherkey;
@@ -217,7 +213,9 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
         popupshow: 1,
 
       });
-    window.open('https://nacdeduae.sharepoint.com', '_blank');
+    //window.open('https://nacdeduae.sharepoint.com', '_blank');
+    //location.reload();
+
   }
 
   onchangenotes(event: any) {
@@ -338,7 +336,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
     this.setState({ loader: 1 });
     await this.getuserprofile().catch();
     //  this.FeedTimeTab();
-   await this.getTimeTable().then(async res => {
+    await this.getTimeTable().then(async res => {
       // res here is myVar
       await this.GetTeachers().catch();
     }).catch();
@@ -352,7 +350,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
 
     const tempitem: any[] = [];
     // const allItems: any[] = await this._sp.web.lists.getByTitle("Teachers").items();
-   await this._sp.web.lists.getByTitle("Teachers").items().then(async (items: any[]) => {
+    await this._sp.web.lists.getByTitle("Teachers").items().then(async (items: any[]) => {
       for (var x = 0; x < items.length; x++) {
         var obj = {
           'TeacherKey': items[x].TeacherKey,
@@ -471,9 +469,12 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
       if (this.state.hostip === items[0].IP) {
         TmpResTrictred = false;
       }
+
+
+
       this.setState({ Restricted: TmpResTrictred, loader: 0 });
       if (TmpResTrictred === false) {
-       await this.IsUserAlreadyCheckIn().catch();
+        await this.IsUserAlreadyCheckIn().catch();
       }
 
 
@@ -497,6 +498,13 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
     //TempTime = TempTime.replace('AM', '').trim();
 
     var TempAlreadyCheckInTime = "";
+
+
+
+    var TempcurrentTeacher = "";
+    var TempcurrentSlot = "";
+    var TempCurrentSubject = "";
+    //var TempOtherClasses = false;
     const tempitem: any[] = [];
     await this._sp.web.lists.getByTitle("Students attendance").items.select(
       "Title", "Email", "ID", "TimeIn", "TimeIn", "Classroom", "Subject",
@@ -513,48 +521,107 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
             'teacherkey': data.teacherkey,
             'FacialTimeIn': data.FacialTimeIn,
             'FacialTimeOut': data.FacialTimeOut,
+            'Subject': data.Subject,
+            
 
           };
           tempitem.push(objs);
-          //var XTime = data.TimeSlot.toString();
+        });
+        //var XTime = data.TimeSlot.toString();
 
-          var spdataTimeIn = this.Getampm(data.FacialTimeIn);
-          var spdataTimeMax = this.Getampm(data.FacialTimeOut);
+        
 
-          // var FinalItem = Classtype.filter(user => user.Teacher == data.teacherkey && user.Day == data.Day);;//&& user.TimeSlot == XTime);
-          const arrayx = this.state.TimeTableArray;
-          var FinalItem = arrayx.filter((user: { Teacherkey: any; Day: any; }) => user.Teacherkey === data.teacherkey && user.Day === data.Day);//&& user.TimeSlot == XTime);
+        //var spdataTimeIn = this.Getampm(data.FacialTimeIn);
+        //var spdataTimeMax = this.Getampm(data.FacialTimeOut);
 
-          for (var g = 0; g < FinalItem.length; g++) {
+        // var FinalItem = Classtype.filter(user => user.Teacher == data.teacherkey && user.Day == data.Day);;//&& user.TimeSlot == XTime);
+        const arrayx = this.state.TimeTableArray;
+        //var FinalItem = arrayx.filter((user: { Teacherkey: any; Day: any; }) => user.Teacherkey === data.teacherkey && user.Day === data.Day);//&& user.TimeSlot == XTime);
 
-            var dataTimeIn = this.Getampm(FinalItem[g].Time);
-            var dataTimeMax = this.Getampm(FinalItem[g].TimeMax);
-            if (dataTimeIn === spdataTimeIn && spdataTimeMax <= dataTimeMax) {
+        var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const dayName = days[new Date().getDay()];
 
-              TempIsAlreadyCheckInd = true;
-              TempAlreadyCheckInTime = data.TimeIn;
+        var FinalItem = arrayx.filter((user: { Day: any; }) => user.Day === dayName);//&& user.TimeSlot == XTime);
 
 
-            }
+        for (var g = 0; g < FinalItem.length; g++) {
+
+          var dataTimeIn = this.Getampm(FinalItem[g].Time);
+          var dataTimeMax = this.Getampm(FinalItem[g].TimeMax);
+
+
+          for (var x = 0; x < tempitem.length; x++) {
+              var spdataTimeIn = this.Getampm(tempitem[x].FacialTimeIn);
+               var spdataTimeMax = this.Getampm(tempitem[x].FacialTimeOut);
+
+               //I alrady check that SP TimeIn and Table Time In on this day.
+               //I already checkhe SP TimMax and Tbale Time Max is
+               //Now I ned to chekk If current time is Less than dataTime Max then no need to check furhter
+               //
+
+               const d = new Date();
+               let hours = d.getHours(); // => 9
+               const minutes = d.getMinutes(); // =>  30
+               const ampm = hours >= 12 ? 'pm' : 'am';
+               hours = hours % 12;
+               hours = hours ? hours : 12; // the hour '0' should be '12'
+               var xhour = "";
+               if (hours < 10)
+                 var xhour = '0' + hours;
+               else
+                 xhour = hours.toString();
+           
+               var xminutes = minutes < 10 ? '0' + minutes : minutes;
+               var CurrentTime = xhour + ":" + xminutes;
+
+               const CurrentdateFormat = Date.parse("2013/05/29 " + CurrentTime + " " + ampm);
+
+
+
+               if (dataTimeIn === spdataTimeIn && spdataTimeMax == dataTimeMax && CurrentdateFormat< spdataTimeMax) {
+                TempIsAlreadyCheckInd = true;
+                TempAlreadyCheckInTime = tempitem[x].TimeIn;
+                TempcurrentTeacher = tempitem[x].Teacher;
+                TempcurrentSlot = tempitem[x].TimeSlot;
+                TempCurrentSubject = tempitem[x].Subject;
+              }
+            
           }
 
 
-        });
+
+          
+
+     
+
+
+        }
 
 
 
 
+
+
+
+       
 
         this.setState({
           loader: 0,
           items: tempitem,
           IsAlreadyCheckInd: TempIsAlreadyCheckInd,
-          AlreadyCheckInTime: TempAlreadyCheckInTime
+          AlreadyCheckInTime: TempAlreadyCheckInTime,
+          CurrentTecher: TempcurrentTeacher,
+          CurrentTimeSlot: TempcurrentSlot,
+          CurrentSubject: TempCurrentSubject
+
         });
+
 
       });
 
   }
+
+
 
   Getampm(stringdt: any) {
     var ampmx = "am";
@@ -768,7 +835,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
               <div className="ms-Grid-row" dir="ltr">
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" ></div>
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" >
-                  <img src='https://itservicestorage.blob.core.windows.net/nacdstuff/nacd_restricted.png' />
+                <h1></h1>
                 </div>
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" >
                   <h2>{this.state.hostip}</h2>
@@ -795,25 +862,25 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12" >
                   <div className='displaynaecss'>
                     <p>تسجيل-الحضور </p>
+
                     <span className='namespan'>
                       {
                         this.state.userDisplayName
                       }
                     </span>
                     <img src='https://itservicestorage.blob.core.windows.net/nacdstuff/chckkin.png' width="150px" />
-                    <p>تم تسجيل حضورك بنجاح!</p>
-
+                    <p>!تم تسجيل حضورك بنجاح</p>
                     <p>{this.state.CurrentCheckintime}</p>
+                    <p>{this.state.CurrentTecher}</p>
+                    <p>{this.state.CurrentTimeSlot}</p>
+                    <p>{this.state.CurrentSubject}</p>
                   </div>
 
 
                 </div>
               </div>
 
-
-              <div className={styles.btnbtn_css_meetingc} onClick={this.closemodal.bind(this)} > Close </div>
-              <hr></hr>
-            </div>
+                       </div>
 
           </div>
         }
@@ -834,9 +901,12 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
                       }
                     </span>
                     <img src='https://itservicestorage.blob.core.windows.net/nacdstuff/chckkin.png' width="150px" />
-                    <p>تم تسجيل حضورك بنجاح!</p>
+                    <p>!تم تسجيل حضورك بنجاح</p>
 
                     <p>{this.state.CurrentCheckintime}</p>
+                    <p>{this.state.CurrentTecher}</p>
+                    <p>{this.state.CurrentTimeSlot}</p>
+                    <p>{this.state.CurrentSubject}</p>
                   </div>
 
 

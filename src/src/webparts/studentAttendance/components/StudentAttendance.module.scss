@@ -90,9 +90,14 @@
     width: 100%;
     height: 100%;
     background-color: black;
-    top: 0%;
     left: 0%;
     opacity: 0.9;
+    top:0%!important;
+  }
+
+  .imgrestrictd{
+    max-width: 99%!important;
+    max-height: 99%!important;
   }
 
   .popupcontent{
