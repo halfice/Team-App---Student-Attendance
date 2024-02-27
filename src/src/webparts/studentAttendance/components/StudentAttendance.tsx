@@ -95,7 +95,8 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
       CurrentDayAr: "",
       CurrentStudentName: "",
       TimeTableArray: [],
-      TeachersArray: []
+      TeachersArray: [],
+      HelpDone: false,
 
     }
     this._sp = getSP();
@@ -522,14 +523,14 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
             'FacialTimeIn': data.FacialTimeIn,
             'FacialTimeOut': data.FacialTimeOut,
             'Subject': data.Subject,
-            
+
 
           };
           tempitem.push(objs);
         });
         //var XTime = data.TimeSlot.toString();
 
-        
+
 
         //var spdataTimeIn = this.Getampm(data.FacialTimeIn);
         //var spdataTimeMax = this.Getampm(data.FacialTimeOut);
@@ -551,48 +552,48 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
 
 
           for (var x = 0; x < tempitem.length; x++) {
-              var spdataTimeIn = this.Getampm(tempitem[x].FacialTimeIn);
-               var spdataTimeMax = this.Getampm(tempitem[x].FacialTimeOut);
+            var spdataTimeIn = this.Getampm(tempitem[x].FacialTimeIn);
+            var spdataTimeMax = this.Getampm(tempitem[x].FacialTimeOut);
 
-               //I alrady check that SP TimeIn and Table Time In on this day.
-               //I already checkhe SP TimMax and Tbale Time Max is
-               //Now I ned to chekk If current time is Less than dataTime Max then no need to check furhter
-               //
+            //I alrady check that SP TimeIn and Table Time In on this day.
+            //I already checkhe SP TimMax and Tbale Time Max is
+            //Now I ned to chekk If current time is Less than dataTime Max then no need to check furhter
+            //
 
-               const d = new Date();
-               let hours = d.getHours(); // => 9
-               const minutes = d.getMinutes(); // =>  30
-               const ampm = hours >= 12 ? 'pm' : 'am';
-               hours = hours % 12;
-               hours = hours ? hours : 12; // the hour '0' should be '12'
-               var xhour = "";
-               if (hours < 10)
-                 var xhour = '0' + hours;
-               else
-                 xhour = hours.toString();
-           
-               var xminutes = minutes < 10 ? '0' + minutes : minutes;
-               var CurrentTime = xhour + ":" + xminutes;
+            const d = new Date();
+            let hours = d.getHours(); // => 9
+            const minutes = d.getMinutes(); // =>  30
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            var xhour = "";
+            if (hours < 10)
+              var xhour = '0' + hours;
+            else
+              xhour = hours.toString();
 
-               const CurrentdateFormat = Date.parse("2013/05/29 " + CurrentTime + " " + ampm);
+            var xminutes = minutes < 10 ? '0' + minutes : minutes;
+            var CurrentTime = xhour + ":" + xminutes;
+
+            const CurrentdateFormat = Date.parse("2013/05/29 " + CurrentTime + " " + ampm);
 
 
 
-               if (dataTimeIn === spdataTimeIn && spdataTimeMax == dataTimeMax && CurrentdateFormat< spdataTimeMax) {
-                TempIsAlreadyCheckInd = true;
-                TempAlreadyCheckInTime = tempitem[x].TimeIn;
-                TempcurrentTeacher = tempitem[x].Teacher;
-                TempcurrentSlot = tempitem[x].TimeSlot;
-                TempCurrentSubject = tempitem[x].Subject;
-              }
-            
+            if (dataTimeIn === spdataTimeIn && spdataTimeMax == dataTimeMax && CurrentdateFormat < spdataTimeMax) {
+              TempIsAlreadyCheckInd = true;
+              TempAlreadyCheckInTime = tempitem[x].TimeIn;
+              TempcurrentTeacher = tempitem[x].Teacher;
+              TempcurrentSlot = tempitem[x].TimeSlot;
+              TempCurrentSubject = tempitem[x].Subject;
+            }
+
           }
 
 
 
-          
 
-     
+
+
 
 
         }
@@ -603,7 +604,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
 
 
 
-       
+
 
         this.setState({
           loader: 0,
@@ -617,6 +618,23 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
         });
 
 
+      });
+
+  }
+
+  async askforHelp() {
+
+    await this._sp.web.lists.getByTitle("Attendance Help").items.add({
+      Title: this.state.curent_user_email,
+      StudentName: this.state.userDisplayName,
+      CurrentTimeSlot: this.state.CurrentTimeSlot,
+      CurrentSubject: this.state.CurrentSubject,
+      CurrentTecher: this.state.CurrentTecher,
+      CurrentCheckintime: this.state.CurrentCheckintime,
+    });
+    this.setState(
+      {
+        HelpDone: true,
       });
 
   }
@@ -835,7 +853,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
               <div className="ms-Grid-row" dir="ltr">
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" ></div>
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" >
-                <h1></h1>
+                  <h1></h1>
                 </div>
                 <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" >
                   <h2>{this.state.hostip}</h2>
@@ -880,7 +898,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
                 </div>
               </div>
 
-                       </div>
+            </div>
 
           </div>
         }
@@ -907,6 +925,27 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
                     <p>{this.state.CurrentTecher}</p>
                     <p>{this.state.CurrentTimeSlot}</p>
                     <p>{this.state.CurrentSubject}</p>
+                    {
+                      this.state.HelpDone == false &&
+                      <>
+                        <p>
+                          <span onClick={this.askforHelp.bind(this)}>
+                            <img src="https://itservicestorage.blob.core.windows.net/nacdstuff/nacd-helpicon.png" width="90px" />
+                          </span>
+                        </p>
+
+                        <p>
+
+                          !تواصل معنا للدعم الفني
+                        </p>
+                      </>
+                    }
+                    {
+                      this.state.HelpDone == true &&
+                      <p>
+                        تم استلام الطلب وسيتم الرد بعد المراجعة ، شكرا لك
+                      </p>
+                    }
                   </div>
 
 
