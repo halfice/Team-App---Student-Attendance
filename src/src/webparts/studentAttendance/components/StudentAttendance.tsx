@@ -1,7 +1,7 @@
-import * as React from 'react';
-import styles from './StudentAttendance.module.scss';
-import type { IStudentAttendanceProps } from './IStudentAttendanceProps';
-import { SPComponentLoader } from '@microsoft/sp-loader';
+import * as React from "react";
+import styles from "./StudentAttendance.module.scss";
+import type { IStudentAttendanceProps } from "./IStudentAttendanceProps";
+import { SPComponentLoader } from "@microsoft/sp-loader";
 import "@pnp/polyfill-ie11";
 import "@pnp/sp/webs";
 import { SPFI } from "@pnp/sp";
@@ -9,48 +9,55 @@ import "@pnp/sp/lists";
 import "@pnp/sp/files";
 import "@pnp/sp/folders";
 import "@pnp/sp/fields";
-import '@pnp/sp/site-users';
+import "@pnp/sp/site-users";
 import { getSP } from "./pnpjsConfig";
-import Clock from 'react-live-clock';
+import Clock from "react-live-clock";
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import "bootstrap/dist/css/bootstrap.css";
 import { HttpClient, HttpClientResponse } from "@microsoft/sp-http";
-import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
+import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
+import * as moment from "moment";
+
+import Wpbatch2025 from "./Wpbatch2025";
+
 const daysOfWeek = [
   {
-    "english": "Sunday",
-    "arabic": "الأحد"
+    english: "Sunday",
+    arabic: "الأحد",
   },
   {
-    "english": "Monday",
-    "arabic": "الاثنين"
+    english: "Monday",
+    arabic: "الاثنين",
   },
   {
-    "english": "Tuesday",
-    "arabic": "الثلاثاء"
+    english: "Tuesday",
+    arabic: "الثلاثاء",
   },
   {
-    "english": "Wednesday",
-    "arabic": "الأربعاء"
+    english: "Wednesday",
+    arabic: "الأربعاء",
   },
   {
-    "english": "Thursday",
-    "arabic": "الخميس"
+    english: "Thursday",
+    arabic: "الخميس",
   },
   {
-    "english": "Friday",
-    "arabic": "الجمعة"
+    english: "Friday",
+    arabic: "الجمعة",
   },
   {
-    "english": "Saturday",
-    "arabic": "السبت"
-  }
+    english: "Saturday",
+    arabic: "السبت",
+  },
 ];
 
-export default class StudentAttendance extends React.Component<IStudentAttendanceProps, any> {
+export default class StudentAttendance extends React.Component<
+  IStudentAttendanceProps,
+  any
+> {
   private _sp: SPFI;
   constructor(props: IStudentAttendanceProps) {
     super(props);
@@ -83,13 +90,13 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
       CurrentTimeCondition: 0,
       CurentFcialTimeIn: "",
       CurrentFacialTimeOut: "",
-      Restricted: true, //ip
+      Restricted: false, //ip
       loader: 0,
       CurrentTecherKey: "",
       IsAlreadyCheckInd: false,
       AlreadyCheckInTime: "",
       currentClassroom: "",
-      CurrentProgram: "لأستطيع",
+      CurrentProgram: "فأفتخر",
       popupshow: false,
       CurrentCheckintime: "",
       CurrentDayAr: "",
@@ -97,41 +104,56 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
       TimeTableArray: [],
       TeachersArray: [],
       HelpDone: false,
+      CurrentSelectedIte: "0",
+      IsCheckOutDone: 0,
 
-    }
+      IsBatchNew: false,
+    };
     this._sp = getSP();
     this.timeout = this.timeout.bind(this);
     this.timeint = this.timeint.bind(this);
     this.onchangenotes = this.onchangenotes.bind(this);
     this.GetTeacherScheul = this.GetTeacherScheul.bind(this);
     this.closemodal = this.closemodal.bind(this);
-
-    SPComponentLoader.loadCss("https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css");
+    this.checkoutitem = this.checkoutitem.bind(this);
+    SPComponentLoader.loadCss(
+      "https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
+    );
   }
   GetTeacherScheul = (event: any, option: any, index: any) => {
     const Teacher = option.key;
     const d = new Date();
     let hours = d.getHours(); // => 9
     const minutes = d.getMinutes(); // =>  30
-    const ampm = hours >= 12 ? 'pm' : 'am';
+    const ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12;
     hours = hours ? hours : 12; // the hour '0' should be '12'
     var xhour = "";
-    if (hours < 10)
-      var xhour = '0' + hours;
-    else
-      xhour = hours.toString();
+    if (hours < 10) var xhour = "0" + hours;
+    else xhour = hours.toString();
 
-    var xminutes = minutes < 10 ? '0' + minutes : minutes;
+    var xminutes = minutes < 10 ? "0" + minutes : minutes;
     var CurrentTime = xhour + ":" + xminutes;
-    var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
     const dayName = days[new Date().getDay()];
     //var FinalItem = Classtype.filter(user => user.Teacher == Teacher && user.Day == dayName);
-    const FinalItem = this.state.TimeTableArray.filter((user: { Teacherkey: any; Day: any; }) => user.Teacherkey === Teacher && user.Day === dayName);//&& user.TimeSlot == XTime);
+    const FinalItem = this.state.TimeTableArray.filter(
+      (user: { Teacherkey: any; Day: any }) =>
+        user.Teacherkey === Teacher && user.Day === dayName
+    ); //&& user.TimeSlot == XTime);
 
-
-    const CurrentdateFormat = Date.parse("2013/05/29 " + CurrentTime + " " + ampm);
+    const CurrentdateFormat = Date.parse(
+      "2013/05/29 " + CurrentTime + " " + ampm
+    );
     let TimeInCondition = false;
 
     let TempSubject = "";
@@ -150,83 +172,104 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
 
       let ampmx = "am";
       let ampmxmax = "am";
-      if (TimeIncheck.split(':')[0] === "12" || TimeIncheck.split(':')[0] === "02" || TimeIncheck.split(':')[0] === "03" || TimeIncheck.split(':')[0] === "01" || TimeIncheck.split(':')[0] === "04" || TimeIncheck.split(':')[0] === "05") {
+      if (
+        TimeIncheck.split(":")[0] === "12" ||
+        TimeIncheck.split(":")[0] === "02" ||
+        TimeIncheck.split(":")[0] === "03" ||
+        TimeIncheck.split(":")[0] === "01" ||
+        TimeIncheck.split(":")[0] === "04" ||
+        TimeIncheck.split(":")[0] === "05"
+      ) {
         ampmx = "pm";
       }
 
       const TimeIncheckMax = FinalItem[x].TimeMax;
-      if (TimeIncheckMax.split(':')[0] === "12" || TimeIncheckMax.split(':')[0] === "02" || TimeIncheckMax.split(':')[0] === "03" || TimeIncheckMax.split(':')[0] === "01" || TimeIncheckMax.split(':')[0] == "04" || TimeIncheckMax.split(':')[0] == "05") {
+      if (
+        TimeIncheckMax.split(":")[0] === "12" ||
+        TimeIncheckMax.split(":")[0] === "02" ||
+        TimeIncheckMax.split(":")[0] === "03" ||
+        TimeIncheckMax.split(":")[0] === "01" ||
+        TimeIncheckMax.split(":")[0] == "04" ||
+        TimeIncheckMax.split(":")[0] == "05"
+      ) {
         ampmxmax = "pm";
       }
 
       // var CurrentdateFormattimeIn = new Date(Date.parse("2013/05/29 " + TimeIncheck + " " + ampm));
-      const CurrentdateFormattimeIn = Date.parse("2013/05/29 " + TimeIncheck + " " + ampmx);
+      const CurrentdateFormattimeIn = Date.parse(
+        "2013/05/29 " + TimeIncheck + " " + ampmx
+      );
 
       //var CurrentdateFormattimeMax = new Date(Date.parse("2013/05/29 " + TimeIncheckMax + " " + ampm));
-      const CurrentdateFormattimeMax = Date.parse("2013/05/29 " + TimeIncheckMax + " " + ampmxmax);
+      const CurrentdateFormattimeMax = Date.parse(
+        "2013/05/29 " + TimeIncheckMax + " " + ampmxmax
+      );
 
-      if (CurrentdateFormat >= CurrentdateFormattimeIn && CurrentdateFormat <= CurrentdateFormattimeMax) {
+      if (
+        CurrentdateFormat >= CurrentdateFormattimeIn &&
+        CurrentdateFormat <= CurrentdateFormattimeMax
+      ) {
         //CurrentdateFormat <= CurrentdateFormattimeMax
         TimeInCondition = true;
         // alert(true);
         TempSubject = FinalItem[x].Subject;
         TempTeacher = option.text;
-        TempDay = dayName
-        TempSlot = FinalItem[x].Time + "-" + FinalItem[x].TimeMax
+        TempDay = dayName;
+        TempSlot = FinalItem[x].Time + "-" + FinalItem[x].TimeMax;
         TempFacialTimeIn = FinalItem[x].Time;
         TempFcailTimeout = FinalItem[x].TimeMax;
         TempTecherKey = FinalItem[x].Teacherkey;
         TempcurrentClassroom = FinalItem[x].ClassRoom;
 
-        const aTemparday = daysOfWeek.filter(user => user.english == dayName);
+        const aTemparday = daysOfWeek.filter((user) => user.english == dayName);
         Temparday = aTemparday[0].arabic;
-
       }
-
-
-
-
     }
-    this.setState(
-      {
-        CurrentTimeCondition: TimeInCondition,
-        CurrentSubject: TempSubject,
-        CurrentDay: TempDay,
-        CurrentTecher: TempTeacher,
-        CurrentTimeSlot: TempSlot,
-        CurentFcialTimeIn: TempFacialTimeIn,
-        CurrentFacialTimeOut: TempFcailTimeout,
-        CurrentTecherKey: TempTecherKey,
-        currentClassroom: TempcurrentClassroom,
-        CurrentDayAr: Temparday,
-
-      });
+    this.setState({
+      CurrentTimeCondition: TimeInCondition,
+      CurrentSubject: TempSubject,
+      CurrentDay: TempDay,
+      CurrentTecher: TempTeacher,
+      CurrentTimeSlot: TempSlot,
+      CurentFcialTimeIn: TempFacialTimeIn,
+      CurrentFacialTimeOut: TempFcailTimeout,
+      CurrentTecherKey: TempTecherKey,
+      currentClassroom: TempcurrentClassroom,
+      CurrentDayAr: Temparday,
+    });
     //alert(TimeInCondition);
     return "";
-
-
-
-
-  }
+  };
   closemodal() {
-    this.setState(
-      {
-        popupshow: 1,
-
-      });
+    this.setState({
+      popupshow: 1,
+    });
     //window.open('https://nacdeduae.sharepoint.com', '_blank');
     //location.reload();
+  }
 
+  async NewBatchCheck() {
+    // talal.alsaiaari@nacd.ac.ae
+    //here system will check the
+  }
+
+  async checkoutitem() {
+    //alert(moment().format('hh:mm:ss A'));
+    const list = this._sp.web.lists.getByTitle("Students attendance");
+    await list.items.getById(this.state.CurrentSelectedIte).update({
+      //const i = await list.items.getById(1608).update({
+      Timeout: moment().format("hh:mm:ss A"),
+    });
+    this.setState({
+      //Rolling it back as per madam shataza
+      IsCheckOutDone: 0,
+    });
   }
 
   onchangenotes(event: any) {
-
-
-    this.setState(
-      {
-        notes: event.target.value,
-
-      });
+    this.setState({
+      notes: event.target.value,
+    });
   }
   async timeint() {
     const today = new Date();
@@ -234,63 +277,68 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
     const year = today.getFullYear();
     const date = today.getDate();
     const currentDate = month + "/" + date + "/" + year;
-    const currTime = new Date().toLocaleString();
-    const finalcurtime = currTime.split(',')[1];
+    //const currTime = new Date().toLocaleString();
+    //const finalcurtime = currTime.split(',')[1];
 
-
-    await this._sp.web.lists.getByTitle("Students attendance").items.add({
-      Title: this.state.userDisplayName,
-      Email: this.state.curent_user_email,
-      TimeIn: finalcurtime,
-      Timeout: "Not Done",
-      Classroom: this.state.currentClassroom,
-      Subject: this.state.CurrentSubject,
-      Notes: currentDate,
-      Day: this.state.CurrentDay,
-      Room: "1",
-      Teacher: this.state.CurrentTecher,
-      DisplayName: this.state.CurrentStudentName,
-      Time_In_Date: currentDate,
-      FacialTimeIn: this.state.CurentFcialTimeIn,
-      FacialTimeOut: this.state.CurrentFacialTimeOut,
-      TimeSlot: this.state.CurentFcialTimeIn + "-" + this.state.CurrentFacialTimeOut,
-      teacherkey: this.state.CurrentTecherKey,
-      Program: this.state.CurrentProgram,
-      Status: this.IsStudentLate(this.state.CurentFcialTimeIn),
-    }).then((response) => {
-      const currTime = new Date().toLocaleString();
-      const finalcurtime = currTime.split(',')[1];
-      this.setState(
-        {
+    await this._sp.web.lists
+      .getByTitle("Students attendance")
+      .items.add({
+        Title: this.state.userDisplayName,
+        Email: this.state.curent_user_email,
+        TimeIn: moment().format("hh:mm:ss A"), //finalcurtime,
+        Timeout: "Not Done",
+        Classroom: this.state.currentClassroom,
+        Subject: this.state.CurrentSubject,
+        Notes: currentDate,
+        Day: this.state.CurrentDay,
+        Room: "1",
+        Teacher: this.state.CurrentTecher,
+        DisplayName: this.state.CurrentStudentName,
+        Time_In_Date: currentDate,
+        FacialTimeIn: this.state.CurentFcialTimeIn,
+        FacialTimeOut: this.state.CurrentFacialTimeOut,
+        TimeSlot:
+          this.state.CurentFcialTimeIn + "-" + this.state.CurrentFacialTimeOut,
+        teacherkey: this.state.CurrentTecherKey,
+        Program: this.state.CurrentProgram,
+        Status: this.IsStudentLate(this.state.CurentFcialTimeIn),
+      })
+      .then((response) => {
+        const currTime = new Date().toLocaleString();
+        const finalcurtime = currTime.split(",")[1];
+        this.setState({
           CurrentCheckintime: finalcurtime,
           popupshow: 1,
-
         });
-
-    });
-
+      });
   }
 
   IsStudentLate(facialTimeine: any) {
     var ampmx = "am";
     //var ampmxmax = "am";
-    if (facialTimeine.split(':')[0] === "12" || facialTimeine.split(':')[0] === "02" || facialTimeine.split(':')[0] === "03" || facialTimeine.split(':')[0] === "01" ||
-      facialTimeine.split(':')[0] === "04" || facialTimeine.split(':')[0] === "05"
-
+    if (
+      facialTimeine.split(":")[0] === "12" ||
+      facialTimeine.split(":")[0] === "02" ||
+      facialTimeine.split(":")[0] === "03" ||
+      facialTimeine.split(":")[0] === "01" ||
+      facialTimeine.split(":")[0] === "04" ||
+      facialTimeine.split(":")[0] === "05"
     ) {
       ampmx = "pm";
     }
 
-
-
     var currentDatec = new Date();
     var year = currentDatec.getFullYear();
-    var month = currentDatec.getMonth() + 1; // Note: January is 0, so we add 1 to get the correct 
+    var month = currentDatec.getMonth() + 1; // Note: January is 0, so we add 1 to get the correct
     var day = currentDatec.getDate();
-    var CurrentdateFormattimeIn = Date.parse(year + "/" + month + "/" + day + " " + facialTimeine + " " + ampmx);
+    var CurrentdateFormattimeIn = Date.parse(
+      year + "/" + month + "/" + day + " " + facialTimeine + " " + ampmx
+    );
     var currentDate = new Date(); // Current date and time
 
-    var differenceMs = Math.abs(currentDate.getTime() - CurrentdateFormattimeIn);
+    var differenceMs = Math.abs(
+      currentDate.getTime() - CurrentdateFormattimeIn
+    );
     var differenceMinutes = Math.ceil(differenceMs / (1000 * 60));
     var strdifferenceMinutes = "Present";
     if (differenceMinutes > 16) {
@@ -299,115 +347,122 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
     return strdifferenceMinutes;
   }
 
+  //Batch_2025_Teachers
+
+
+  private async GetNewBatchTeachers(loginUserEmail) {
+    const tempitem: any[] = [];
+var TempIsBatchNew=false;
+
+    const existingRecords = await this._sp.web.lists
+    .getByTitle("Batch_2025_Teachers")
+    .items.filter(
+      `Title eq '${loginUserEmail}'`
+    )
+    .select("Id")();
+
+  if (existingRecords.length> 0) {
+    this.setState({IsBatchNew:true});
+  }
+     
+  }
+
   async IpGetInformation() {
     return this.props.wpcontext.httpClient
-      .get(
-        'https://api.ipify.org?format=json',
-        HttpClient.configurations.v1
-      )
+      .get("https://api.ipify.org?format=json", HttpClient.configurations.v1)
       .then((res: HttpClientResponse): Promise<any> => {
         return res.json();
       })
       .then(async (response: any): Promise<void> => {
-
-        this.setState(
-          {
-            hostname: window.location.hostname,
-            hostip: response.ip,
-
-          });
+        this.setState({
+          hostname: window.location.hostname,
+          hostip: response.ip,
+        });
         await this.getAttendanceMaster();
-
       });
-
   }
 
   async timeout() {
     const currTime = new Date().toLocaleString();
-    const finalcurtime = currTime.split(',')[1]
+    const finalcurtime = currTime.split(",")[1];
     const list = this._sp.web.lists.getByTitle("Time Attendance");
     await list.items.getById(this.state.Curent_User_Todays_ID).update({
       Time_x0020_Out: finalcurtime,
-      TimeOut_x0020_Type: "User"
+      TimeOut_x0020_Type: "User",
     });
-    window.open('https://nacdeduae.sharepoint.com/');
+    window.open("https://nacdeduae.sharepoint.com/");
   }
+
+
 
   async componentDidMount() {
     this.setState({ loader: 1 });
     await this.getuserprofile().catch();
     //  this.FeedTimeTab();
-    await this.getTimeTable().then(async res => {
-      // res here is myVar
-      await this.GetTeachers().catch();
-    }).catch();
-
-
-
-
+    await this.getTimeTable()
+      .then(async (res) => {
+        // res here is myVar
+        await this.GetTeachers().catch();
+      })
+      .catch();
   }
 
   private async GetTeachers() {
-
     const tempitem: any[] = [];
     // const allItems: any[] = await this._sp.web.lists.getByTitle("Teachers").items();
-    await this._sp.web.lists.getByTitle("Teachers").items().then(async (items: any[]) => {
-      for (var x = 0; x < items.length; x++) {
-        var obj = {
-          'TeacherKey': items[x].TeacherKey,
-          'Title': items[x].Title,
-          'STatus': items[x].STatus,
-          'key': items[x].TeacherKey,
-          'text': items[x].Title
+    await this._sp.web.lists
+      .getByTitle("Teachers")
+      .items()
+      .then(async (items: any[]) => {
+        for (var x = 0; x < items.length; x++) {
+          var obj = {
+            TeacherKey: items[x].TeacherKey,
+            Title: items[x].Title,
+            STatus: items[x].STatus,
+            key: items[x].TeacherKey,
+            text: items[x].Title,
+          };
+          tempitem.push(obj);
         }
-        tempitem.push(obj);
-      }
-      await this.IpGetInformation().catch();
-      this.setState({
-        loader: 0,
-        TeachersArray: tempitem,
+        //await this.IpGetInformation().catch();
+        this.setState({
+          loader: 0,
+          TeachersArray: tempitem,
+        });
+
+        console.log(items);
       });
-
-      console.log(items);
-    });
-
-
-
   }
 
   private async getTimeTable() {
-
     const tempitem: any[] = [];
     // const allItems: any[] = await this._sp.web.lists.getByTitle("Time Table").items();
-    await this._sp.web.lists.getByTitle("Time Table").items().then(async (allItems: any[]) => {
-      for (var x = 0; x < allItems.length; x++) {
-        var obj = {
-          'Teacher': allItems[x].Teacher,
-          'Day': allItems[x].Day,
-          'Subject': allItems[x].Subject,
-          'TimeStart': allItems[x].TimeStart,
-          'TimeMax': allItems[x].TimeMax,
-          'TimeSlot': allItems[x].TimeSlot,
-          'ClassRoom': allItems[x].ClassRoom,
-          'Teacherkey': allItems[x].Techerkey,
-          'IsRamdan': allItems[x].IsRamdan,
-          'Course': allItems[x].Course,
-          'Time': allItems[x].TimeStart,
+    await this._sp.web.lists
+      .getByTitle("Time Table")
+      .items()
+      .then(async (allItems: any[]) => {
+        for (var x = 0; x < allItems.length; x++) {
+          var obj = {
+            Teacher: allItems[x].Teacher,
+            Day: allItems[x].Day,
+            Subject: allItems[x].Subject,
+            TimeStart: allItems[x].TimeStart,
+            TimeMax: allItems[x].TimeMax,
+            TimeSlot: allItems[x].TimeSlot,
+            ClassRoom: allItems[x].ClassRoom,
+            Teacherkey: allItems[x].Techerkey,
+            IsRamdan: allItems[x].IsRamdan,
+            Course: allItems[x].Course,
+            Time: allItems[x].TimeStart,
+          };
+          tempitem.push(obj);
         }
-        tempitem.push(obj);
-      }
 
-
-      this.setState({
-        loader: 0,
-        TimeTableArray: tempitem,
+        this.setState({
+          loader: 0,
+          TimeTableArray: tempitem,
+        });
       });
-
-    });
-
-
-
-
   }
 
   getTeacherFinalNAme(teacherkey: any) {
@@ -418,22 +473,18 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
         break;
 
       case "asmahan":
-        teachernamearabic = "أسمهان المنذري"
+        teachernamearabic = "أسمهان المنذري";
         break;
-
 
       case "afaf":
         teachernamearabic = "عفاف المنهلي";
         break;
 
-
       case "bilqis":
         teachernamearabic = "بلقيس الحميري";
         break;
-
     }
     return teachernamearabic;
-
   }
 
   async FeedTimeTab() {
@@ -451,7 +502,7 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
             ClassRoom: Classtype[i].ClassRoom,
             Techerkey: Classtype[i].Teacher,
             IsRamdan: "No",
-            Course: "لأستطيع",
+            Course: "فأفتخر",
     
           }).then((response) => {
     
@@ -463,26 +514,23 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
   }
 
   private async getAttendanceMaster() {
-
     // const items: any[] = await this._sp.web.lists.getByTitle("").items();
     var TmpResTrictred = true;
-    await this._sp.web.lists.getByTitle("Time Attendance Master").items().then(async (items: any[]) => {
-      if (this.state.hostip === items[0].IP) {
-        TmpResTrictred = false;
-      }
+    await this._sp.web.lists
+      .getByTitle("Time Attendance Master")
+      .items()
+      .then(async (items: any[]) => {
+        if (this.state.hostip === items[0].IP) {
+          TmpResTrictred = false;
+        }
 
+        this.setState({ Restricted: TmpResTrictred, loader: 0 });
+        if (TmpResTrictred === false) {
+          await this.IsUserAlreadyCheckIn().catch();
+        }
 
-
-      this.setState({ Restricted: TmpResTrictred, loader: 0 });
-      if (TmpResTrictred === false) {
-        await this.IsUserAlreadyCheckIn().catch();
-      }
-
-
-      // 
-
-    });
-
+        //
+      });
   }
 
   async IsUserAlreadyCheckIn() {
@@ -500,37 +548,58 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
 
     var TempAlreadyCheckInTime = "";
 
-
-
     var TempcurrentTeacher = "";
     var TempcurrentSlot = "";
     var TempCurrentSubject = "";
+    var TempCurrentItemId = "0";
     //var TempOtherClasses = false;
     const tempitem: any[] = [];
-    await this._sp.web.lists.getByTitle("Students attendance").items.select(
-      "Title", "Email", "ID", "TimeIn", "TimeIn", "Classroom", "Subject",
-      "Notes", "Day", "Room", "Teacher", "DisplayName", "Time_In_Date", "TimeSlot", "teacherkey", "FacialTimeIn", "FacialTimeOut")
-      .filter("Email eq '" + this.state.curent_user_email + "' and Time_In_Date eq '" + currentDate + "'")().then(items => {
-        items.forEach(data => {
+    await this._sp.web.lists
+      .getByTitle("Students attendance")
+      .items.select(
+        "Title",
+        "Email",
+        "ID",
+        "TimeIn",
+        "TimeIn",
+        "Classroom",
+        "Subject",
+        "Notes",
+        "Day",
+        "Room",
+        "Teacher",
+        "DisplayName",
+        "Time_In_Date",
+        "TimeSlot",
+        "teacherkey",
+        "FacialTimeIn",
+        "FacialTimeOut"
+      )
+      .filter(
+        "Email eq '" +
+          this.state.curent_user_email +
+          "' and Time_In_Date eq '" +
+          currentDate +
+          "'"
+      )()
+      .then((items) => {
+        items.forEach((data) => {
           const objs = {
-            'Email': data.Email,
-            'TimeSlot': data.TimeSlot,
-            'Day': data.Day,
-            'Teacher': data.Teacher,
-            'Id': data.Id,
-            'TimeIn': data.TimeIn,
-            'teacherkey': data.teacherkey,
-            'FacialTimeIn': data.FacialTimeIn,
-            'FacialTimeOut': data.FacialTimeOut,
-            'Subject': data.Subject,
-
-
+            Email: data.Email,
+            TimeSlot: data.TimeSlot,
+            Day: data.Day,
+            Teacher: data.Teacher,
+            Id: data.Id,
+            TimeIn: data.TimeIn,
+            teacherkey: data.teacherkey,
+            FacialTimeIn: data.FacialTimeIn,
+            FacialTimeOut: data.FacialTimeOut,
+            Subject: data.Subject,
+            ID: data.ID,
           };
           tempitem.push(objs);
         });
         //var XTime = data.TimeSlot.toString();
-
-
 
         //var spdataTimeIn = this.Getampm(data.FacialTimeIn);
         //var spdataTimeMax = this.Getampm(data.FacialTimeOut);
@@ -539,17 +608,24 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
         const arrayx = this.state.TimeTableArray;
         //var FinalItem = arrayx.filter((user: { Teacherkey: any; Day: any; }) => user.Teacherkey === data.teacherkey && user.Day === data.Day);//&& user.TimeSlot == XTime);
 
-        var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        var days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
         const dayName = days[new Date().getDay()];
 
-        var FinalItem = arrayx.filter((user: { Day: any; }) => user.Day === dayName);//&& user.TimeSlot == XTime);
-
+        var FinalItem = arrayx.filter(
+          (user: { Day: any }) => user.Day === dayName
+        ); //&& user.TimeSlot == XTime);
 
         for (var g = 0; g < FinalItem.length; g++) {
-
           var dataTimeIn = this.Getampm(FinalItem[g].Time);
           var dataTimeMax = this.Getampm(FinalItem[g].TimeMax);
-
 
           for (var x = 0; x < tempitem.length; x++) {
             var spdataTimeIn = this.Getampm(tempitem[x].FacialTimeIn);
@@ -563,48 +639,34 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
             const d = new Date();
             let hours = d.getHours(); // => 9
             const minutes = d.getMinutes(); // =>  30
-            const ampm = hours >= 12 ? 'pm' : 'am';
+            const ampm = hours >= 12 ? "pm" : "am";
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
             var xhour = "";
-            if (hours < 10)
-              var xhour = '0' + hours;
-            else
-              xhour = hours.toString();
+            if (hours < 10) var xhour = "0" + hours;
+            else xhour = hours.toString();
 
-            var xminutes = minutes < 10 ? '0' + minutes : minutes;
+            var xminutes = minutes < 10 ? "0" + minutes : minutes;
             var CurrentTime = xhour + ":" + xminutes;
 
-            const CurrentdateFormat = Date.parse("2013/05/29 " + CurrentTime + " " + ampm);
+            const CurrentdateFormat = Date.parse(
+              "2013/05/29 " + CurrentTime + " " + ampm
+            );
 
-
-
-            if (dataTimeIn === spdataTimeIn && spdataTimeMax == dataTimeMax && CurrentdateFormat < spdataTimeMax) {
+            if (
+              dataTimeIn === spdataTimeIn &&
+              spdataTimeMax == dataTimeMax &&
+              CurrentdateFormat < spdataTimeMax
+            ) {
               TempIsAlreadyCheckInd = true;
               TempAlreadyCheckInTime = tempitem[x].TimeIn;
               TempcurrentTeacher = tempitem[x].Teacher;
               TempcurrentSlot = tempitem[x].TimeSlot;
               TempCurrentSubject = tempitem[x].Subject;
+              TempCurrentItemId = tempitem[x].ID;
             }
-
           }
-
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-
 
         this.setState({
           loader: 0,
@@ -613,17 +675,13 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
           AlreadyCheckInTime: TempAlreadyCheckInTime,
           CurrentTecher: TempcurrentTeacher,
           CurrentTimeSlot: TempcurrentSlot,
-          CurrentSubject: TempCurrentSubject
-
+          CurrentSubject: TempCurrentSubject,
+          CurrentSelectedIte: TempCurrentItemId,
         });
-
-
       });
-
   }
 
   async askforHelp() {
-
     await this._sp.web.lists.getByTitle("Attendance Help").items.add({
       Title: this.state.curent_user_email,
       StudentName: this.state.userDisplayName,
@@ -632,340 +690,302 @@ export default class StudentAttendance extends React.Component<IStudentAttendanc
       CurrentTecher: this.state.CurrentTecher,
       CurrentCheckintime: this.state.CurrentCheckintime,
     });
-    this.setState(
-      {
-        HelpDone: true,
-      });
-
+    this.setState({
+      HelpDone: true,
+    });
   }
-
-
 
   Getampm(stringdt: any) {
     var ampmx = "am";
-    if (stringdt.split(':')[0] === "12" || stringdt.split(':')[0] === "02" || stringdt.split(':')[0] === "03" || stringdt.split(':')[0] === "01" || stringdt.split(':')[0] === "04" || stringdt.split(':')[0] === "05") {
+    if (
+      stringdt.split(":")[0] === "12" ||
+      stringdt.split(":")[0] === "02" ||
+      stringdt.split(":")[0] === "03" ||
+      stringdt.split(":")[0] === "01" ||
+      stringdt.split(":")[0] === "04" ||
+      stringdt.split(":")[0] === "05"
+    ) {
       ampmx = "pm";
     }
     var expectedate = Date.parse("2013/05/29 " + stringdt + " " + ampmx);
     return expectedate;
-
   }
 
   async getuserprofile(): Promise<void> {
     const user = await this._sp.web.currentUser();
-    this.setState(
-      {
-        curent_user_email: user.Email.toLowerCase(),
-        userDisplayName: user.Title,
-        CurrentStudentName: user.Title
+    this.setState({
+      curent_user_email: user.Email.toLowerCase(),
+      userDisplayName: user.Title,
+      CurrentStudentName: user.Title,
+    });
 
-      });
+    this.GetNewBatchTeachers(user.Email.toLowerCase());
   }
-
-
 
   public render(): React.ReactElement<IStudentAttendanceProps> {
-
-
-
-
     const optionsdteac: IDropdownOption[] = this.state.TeachersArray;
-
     return (
-      <section className='AttendanceSectionClasss'>
-
-        {
-          this.state.Restricted === false &&
-
-          <div className={styles.welcome}>
-            <div className="ms-Grid-row" dir="ltr">
-              <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12" >
-                <div className="headindiv">تسجيل الحضور للمحاضرات</div>
-              </div>
-              <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 "></div>
-            </div>
-
-            <div className="ms-Grid-row">
-              <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 ">
-                <div className="headingdivc">
-
-                  البرنامج : لأستطيع
+      <>
+        <section className="AttendanceSectionClasss">
+          {this.state.Restricted === false &&
+            this.state.IsBatchNew == false && (
+              <div className={styles.welcome}>
+                <div className="ms-Grid-row" dir="ltr">
+                  <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12">
+                    <div className="headindiv">تسجيل الحضور للمحاضرات</div>
+                  </div>
+                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 "></div>
                 </div>
-
-              </div>
-              <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 labelclass">
-                <span className="labelclass"></span>
-              </div>
-
-              <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 dropdownclass">
-                <Dropdown
-                  placeholder=":اسم المحاضر "
-                  options={optionsdteac}
-                  onChange={this.GetTeacherScheul}
-                />
-              </div>
-
-
-              <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 "></div>
-
-            </div>
-            <div className="ms-Grid-row">
-
-              <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4 " >
-                {
-                  this.state.ChcekTimeOut === "0" &&
-                  <div className={styles.btn_not_in_Css} onClick={this.timeint.bind(this)} >In </div>
-                }
-
-              </div>
-            </div>
-
-
-
-            {
-              this.state.Restricted === false &&
-
-              <>
-
-                {
-                  this.state.CurrentTimeCondition === true &&
-                  <>
-                    <div className="ms-Grid-row">
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
-                        <span>اليوم</span>
-                      </div>
-
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1 columnsClass">
-                        <span>الشعبة</span>
-                      </div>
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
-                        <span>زمن المحاضرة</span>
-                      </div>
-
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
-                        <span>المادة</span>
-                      </div>
-
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
-                        <span>إسم المحاضر</span>
-                      </div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
-
-
-                    </div>
-
-
-                    <div className="ms-Grid-row">
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
-                        {this.state.CurrentDayAr}
-                      </div>
-
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1 columnsgrid">
-                        {this.state.currentClassroom}
-                      </div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
-                        {this.state.CurrentTimeSlot}
-                      </div>
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
-                        {this.state.CurrentSubject}
-                      </div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
-                        {this.state.CurrentTecher}
-                      </div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
-
-
-                    </div>
-                    <div className="ms-Grid-row">
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4">
-                        <div className={styles.clockdiv}>
-                          {this.state.CurrentDayAr} : <Clock format={'HH:mm:ss'} ticking={true} timezone={'Asia/Muscat'} />
-                        </div>
-
-                      </div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
-
-                    </div>
-                    <div className="ms-Grid-row" dir="ltr">
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
-
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4">
-                        <div className={styles.btnbtn_css_meetingc} onClick={this.timeint.bind(this)} > سجل حضورك </div>
-                      </div>
-                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
-
-                    </div>
-
-
-
-
-                  </>
-                }
-
-
-
 
                 <div className="ms-Grid-row">
+                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 ">
+                    <div className="headingdivc">البرنامج : فأفتخر</div>
+                  </div>
+                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 labelclass">
+                    <span className="labelclass"></span>
+                  </div>
 
-                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4 " >
-                    {
-                      this.state.ChcekTimeOut === "x" &&
-                      <div className={styles.btnbtn_css_meetingc} onClick={this.timeint.bind(this)} >In </div>
-                    }
+                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 dropdownclass">
+                    <Dropdown
+                      placeholder=":اسم المحاضر "
+                      options={optionsdteac}
+                      onChange={this.GetTeacherScheul}
+                    />
+                  </div>
+
+                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg3 "></div>
+                </div>
+                <div className="ms-Grid-row">
+                  <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4 ">
+                    {this.state.ChcekTimeOut === "0" && (
+                      <div
+                        className={styles.btn_not_in_Css}
+                        onClick={this.timeint.bind(this)}
+                      >
+                        In{" "}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-
-
-              </>
-            }
-
-          </div>
-        }
-
-
-
-        {
-          this.state.loader === 1 &&
-          <div className={styles.loaderdiv}>
-            <div className={styles.loader}>
-            </div>
-          </div>
-        }
-
-        {
-
-          this.state.Restricted === true &&
-
-          <div className="popupfather">
-            <div>
-              <div className="ms-Grid-row" dir="ltr">
-                <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" ></div>
-                <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" >
-                  <h1></h1>
-                </div>
-                <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4" >
-                  <h2>{this.state.hostip}</h2>
-
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-        }
-        <hr></hr>
-
-
-
-
-        {
-          this.state.popupshow === 1 &&
-
-          <div className="popupfather">
-            <div className='popupcontent'>
-
-              <div className="ms-Grid-row" dir="ltr">
-                <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12" >
-                  <div className='displaynaecss'>
-                    <p>تسجيل-الحضور </p>
-
-                    <span className='namespan'>
-                      {
-                        this.state.userDisplayName
-                      }
-                    </span>
-                    <img src='https://itservicestorage.blob.core.windows.net/nacdstuff/chckkin.png' width="150px" />
-                    <p>!تم تسجيل حضورك بنجاح</p>
-                    <p>{this.state.CurrentCheckintime}</p>
-                    <p>{this.state.CurrentTecher}</p>
-                    <p>{this.state.CurrentTimeSlot}</p>
-                    <p>{this.state.CurrentSubject}</p>
-                  </div>
-
-
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        }
-
-        {
-          this.state.IsAlreadyCheckInd === true &&
-
-          <div className="popupfather">
-            <div className='popupcontent'>
-
-              <div className="ms-Grid-row" dir="ltr">
-                <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12" >
-                  <div className='displaynaecss'>
-                    <p>تسجيل-الحضور </p>
-                    <span className='namespan'>
-                      {
-                        this.state.userDisplayName
-                      }
-                    </span>
-                    <img src='https://itservicestorage.blob.core.windows.net/nacdstuff/chckkin.png' width="150px" />
-                    <p>!تم تسجيل حضورك بنجاح</p>
-
-                    <p>{this.state.CurrentCheckintime}</p>
-                    <p>{this.state.CurrentTecher}</p>
-                    <p>{this.state.CurrentTimeSlot}</p>
-                    <p>{this.state.CurrentSubject}</p>
-                    {
-                      this.state.HelpDone == false &&
+                {this.state.Restricted === false && (
+                  <>
+                    {this.state.CurrentTimeCondition === true && (
                       <>
-                        <p>
-                          <span onClick={this.askforHelp.bind(this)}>
-                            <img src="https://itservicestorage.blob.core.windows.net/nacdstuff/nacd-helpicon.png" width="90px" />
-                          </span>
-                        </p>
+                        <div className="ms-Grid-row">
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
+                            <span>اليوم</span>
+                          </div>
 
-                        <p>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1 columnsClass">
+                            <span>الشعبة</span>
+                          </div>
 
-                          !تواصل معنا للدعم الفني
-                        </p>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
+                            <span>زمن المحاضرة</span>
+                          </div>
+
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
+                            <span>المادة</span>
+                          </div>
+
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsClass">
+                            <span>إسم المحاضر</span>
+                          </div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
+                        </div>
+
+                        <div className="ms-Grid-row">
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
+
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
+                            {this.state.CurrentDayAr}
+                          </div>
+
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1 columnsgrid">
+                            {this.state.currentClassroom}
+                          </div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
+                            {this.state.CurrentTimeSlot}
+                          </div>
+
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
+                            {this.state.CurrentSubject}
+                          </div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg2 columnsgrid">
+                            {this.state.CurrentTecher}
+                          </div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg1"></div>
+                        </div>
+                        <div className="ms-Grid-row">
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4">
+                            <div className={styles.clockdiv}>
+                              {this.state.CurrentDayAr} :{" "}
+                              <Clock
+                                format={"HH:mm:ss"}
+                                ticking={true}
+                                timezone={"Asia/Muscat"}
+                              />
+                            </div>
+                          </div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
+                        </div>
+                        <div className="ms-Grid-row" dir="ltr">
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
+
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4">
+                            <div
+                              className={styles.btnbtn_css_meetingc}
+                              onClick={this.timeint.bind(this)}
+                            >
+                              {" "}
+                              سجل حضورك{" "}
+                            </div>
+                          </div>
+                          <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4"></div>
+                        </div>
                       </>
-                    }
-                    {
-                      this.state.HelpDone == true &&
-                      <p>
-                        تم استلام الطلب وسيتم الرد بعد المراجعة ، شكرا لك
-                      </p>
-                    }
+                    )}
+
+                    <div className="ms-Grid-row">
+                      <div className="ms-Grid-col ms-sm12 ms-md4 ms-lg4 ">
+                        {this.state.ChcekTimeOut === "x" && (
+                          <div
+                            className={styles.btnbtn_css_meetingc}
+                            onClick={this.timeint.bind(this)}
+                          >
+                            In{" "}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+          {this.state.loader === 1 && (
+            <div className={styles.loaderdiv}>
+              <div className={styles.loader}></div>
+            </div>
+          )}
+
+          {this.state.Restricted === true && (
+            <div className="popupfather">
+              <div>
+                <div className="ms-Grid-row" dir="ltr">
+                  <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4"></div>
+                  <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4">
+                    <h1></h1>
                   </div>
-
-
+                  <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg4">
+                    <h2>{this.state.hostip}</h2>
+                  </div>
                 </div>
               </div>
-
             </div>
+          )}
+          <hr></hr>
 
-          </div>
-        }
+          {this.state.popupshow === 1 && this.state.IsBatchNew == false && (
+            <div className="popupfather">
+              <div className="popupcontent">
+                <div className="ms-Grid-row" dir="ltr">
+                  <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12">
+                    <div className="displaynaecss">
+                      <p>تسجيل-الحضور </p>
 
+                      <span className="namespan">
+                        {this.state.userDisplayName}
+                      </span>
+                      <img
+                        src="https://itservicestorage.blob.core.windows.net/nacdstuff/chckkin.png"
+                        width="150px"
+                        alt="NACD"
+                      />
+                      <p>!تم تسجيل حضورك بنجاح</p>
+                      <p>{this.state.CurrentCheckintime}</p>
+                      <p>{this.state.CurrentTecher}</p>
+                      <p>{this.state.CurrentTimeSlot}</p>
+                      <p>{this.state.CurrentSubject}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
+          {this.state.IsAlreadyCheckInd === true &&
+            this.state.IsBatchNew == false && (
+              <div className="popupfather">
+                <div className="popupcontent">
+                  <div className="ms-Grid-row" dir="ltr">
+                    <div className="ms-Grid-col ms-sm12 ms-md12 ms-lg12">
+                      <div className="displaynaecss">
+                        <p>تسجيل-الحضور </p>
+                        <span className="namespan">
+                          {this.state.userDisplayName}
+                        </span>
+                        <img
+                          src="https://itservicestorage.blob.core.windows.net/nacdstuff/chckkin.png"
+                          width="150px"
+                          alt="NACD"
+                        />
+                        {this.state.IsCheckOutDone == 0 && (
+                          <p onClick={this.checkoutitem}>تسجيل خروج</p>
+                        )}
+                        <p>!تم تسجيل حضورك بنجاح</p>
 
-      </section>
+                        <p>{this.state.CurrentCheckintime}</p>
+                        <p>{this.state.CurrentTecher}</p>
+                        <p>{this.state.CurrentTimeSlot}</p>
+                        <p>{this.state.CurrentSubject}</p>
+                        {this.state.HelpDone == false && (
+                          <>
+                            <p>
+                              <span onClick={this.askforHelp.bind(this)}>
+                                <img
+                                  src="https://itservicestorage.blob.core.windows.net/nacdstuff/nacd-helpicon.png"
+                                  width="90px"
+                                  alt="NACD"
+                                />
+                              </span>
+                            </p>
+
+                            <p>!تواصل معنا للدعم الفني</p>
+                          </>
+                        )}
+                        {this.state.HelpDone == true && (
+                          <p>
+                            تم استلام الطلب وسيتم الرد بعد المراجعة ، شكرا لك
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+        </section>
+        {this.state.IsBatchNew == true && (
+          <>
+            <Wpbatch2025
+              description={""}
+              isDarkTheme={false}
+              environmentMessage={""}
+              hasTeamsContext={false}
+              userDisplayName={""}
+              pageContext={this.props.pageContext}
+              wpcontext={this.props.wpcontext}
+            />
+          </>
+        )}
+      </>
     );
   }
-
-
 }
-
 
 /*
 const Classtype = [

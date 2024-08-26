@@ -15,6 +15,7 @@ module.exports = {
         'sourceType': 'module'
       },
       rules: {
+        "no-use-before-define": "off",
         "react/self-closing-comp": "off",
         '@typescript-eslint/no-non-null-assertion': 'off',
         // Prevent usage of the JavaScript null value, while allowing code to access existing APIs that may require null. https://www.npmjs.com/package/@rushstack/eslint-plugin

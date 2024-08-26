@@ -1,0 +1,93 @@
+.wpbatch2025 {
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 5px;
+
+  .header {
+    text-align: right;
+    margin-bottom: 20px;
+
+    h1 {
+      color: #647684;
+      margin: 0;
+      font-size: 24px;
+    }
+
+    p {
+      color: #83AABA;
+      font-size: 18px;
+      margin: 5px 0 0 0;
+    }
+  }
+
+  .sectionButtons {
+    text-align: right; /* Right align section buttons */
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: #647684;
+    text-align: right;
+  }
+
+  .timetableHeading {
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 18px;
+  }
+
+  .timetable {
+    padding: 10px;
+    background-color: #E6CFAC;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+
+    p {
+      margin: 0;
+      color: #647684;
+    }
+  }
+
+  .studentRow {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .studentDetails {
+      flex: 1;
+      margin-right: 20px;
+      text-align: left;
+
+      .studentName {
+        font-size: 16px;
+        color: #647684;
+        font-weight: 500;
+        display: block;
+      }
+
+      .studentNameAr {
+        font-size: 14px;
+        color: #83AABA;
+        font-weight: 400;
+        display: block;
+        margin-top: 5px;
+      }
+    }
+
+    .buttonGroup {
+      text-align: right;
+    }
+  }
+}
+
+.errorMessage{
+  color:red;;
+}
