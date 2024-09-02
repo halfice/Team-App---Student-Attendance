@@ -357,7 +357,8 @@ var TempIsBatchNew=false;
     const existingRecords = await this._sp.web.lists
     .getByTitle("Batch_2025_Teachers")
     .items.filter(
-      `Title eq '${loginUserEmail}'`
+      `Title eq '${loginUserEmail.toLowerCase()}'`
+
     )
     .select("Id")();
 

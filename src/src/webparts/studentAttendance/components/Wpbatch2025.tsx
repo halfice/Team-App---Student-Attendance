@@ -95,6 +95,8 @@ export default class Wpbatch2025 extends React.Component<
   }
 
   private async fetchAttendance(section: string) {
+
+    console.log("No timetable slot"+this.state.LoginUser.toLowerCase() );
     this.setState({ isLoading: true });
 
     const currentDayIndex = new Date().getDay();
@@ -113,7 +115,9 @@ export default class Wpbatch2025 extends React.Component<
     const timetableItems = await this._sp.web.lists
       .getByTitle("batch_2_timetable")
       .items.filter(
-        `section eq '${section}' and Day eq '${currentDayArabic}' and Email eq '${this.state.LoginUser}'`
+        //`section eq '${section}' and Day eq '${currentDayArabic}' and Email eq '${this.state.LoginUser.toLowerCase()}'`
+
+        `section eq '${section}' and Day eq '${currentDayArabic}' and Email eq '${this.state.LoginUser.toLowerCase()}'`
       )
       .select("Title", "TimeSlot", "TimeStart", "TimeMax")();
 
@@ -164,6 +168,7 @@ export default class Wpbatch2025 extends React.Component<
   }
   private async insertInitialAttendance(section: string) {
     this.setState({ isLoading: true });
+    console.log("insertInitialAttendance"+this.state.LoginUser.toLowerCase());
 
     const students = this.state.sections[section];
 
@@ -185,7 +190,10 @@ export default class Wpbatch2025 extends React.Component<
     // Fetch the timetable to check if a time slot is available
     const timetableItems = await this._sp.web.lists
       .getByTitle("batch_2_timetable")
-      .items.filter(`section eq '${section}' and Day eq '${currentDay}' and Email eq '${this.state.LoginUser}'`)
+      .items.filter
+      (`section eq '${section}' and Day eq '${currentDay}' and Email eq '${this.state.LoginUser.toLowerCase()}'`)
+      //(`section eq '${section}' and Day eq '${currentDay}' and Email eq 'omniah.alqahtani@nacd.ac.ae'`
+
       .select("Title", "TimeSlot", "TimeStart", "TimeMax")();
 
     if (timetableItems.length === 0) {
@@ -295,7 +303,7 @@ export default class Wpbatch2025 extends React.Component<
     // Fetch timetable for the selected section and current day
     const timetableItems = await this._sp.web.lists
       .getByTitle("batch_2_timetable")
-      .items.filter(`section eq '${section}' and Day eq '${currentDay}' and Email eq '${this.state.LoginUser}'`)
+      .items.filter(`section eq '${section}' and Day eq '${currentDay}' and Email eq '${this.state.LoginUser.toLowerCase()}'`)
       .select(
         "Title",
         "Teacher",
